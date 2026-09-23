@@ -1,0 +1,3 @@
+include @prepare.resc
+include @buffer_hook.resc
+start

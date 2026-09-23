@@ -1,0 +1,9 @@
+build/
+output/
+Debug/
+Release/
+
+.cproject
+.mxproject
+.project
+*.launch
