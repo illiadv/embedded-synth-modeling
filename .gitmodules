@@ -1,0 +1,4 @@
+[submodule "external/synth_lib"]
+	path = external/synth_lib
+	url = https://github.com/illiadv/embedded-synth-lib.git
+	branch = main
