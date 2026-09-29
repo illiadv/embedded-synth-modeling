@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "test.h"
+#include "api.h"
 
 /* USER CODE END Includes */
 
@@ -60,6 +60,8 @@ static void MX_USART2_UART_Init(void);
 
 #define BUFFER_SIZE 4000
 
+Oscillator osc;
+
 sound_sample_t g_buffer[4000] = {0};
 unsigned int g_buffer_fill_count = 0;
 
@@ -80,7 +82,7 @@ void BufferFullCallback(void)
 void TIM1_UP_Callback(void)
 {
     static unsigned int sample_i = 0;
-    g_buffer[sample_i] = Test_GetSample();
+    g_buffer[sample_i] = GetSample(&osc);
     sample_i++;
     if (sample_i == BUFFER_SIZE)
     {
@@ -132,7 +134,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   UART_Print("Hello world!\r\n");
-  Test_Init();
+  InitOsc(osc, 220.0f);
   LL_TIM_EnableIT_UPDATE(TIM1);
   LL_TIM_EnableCounter(TIM1);
 
