@@ -1,0 +1,2 @@
+include @prepare.resc
+machine StartGdbServer 3333
