@@ -1,6 +1,6 @@
 import subprocess
 import shlex
-from pyrenode3.wrappers import Analyzer, Emulation, Monitor, TerminalTester
+from pyrenode3.wrappers import Emulation, Monitor
 
 e = Emulation()
 m = Monitor()
