@@ -66,5 +66,6 @@ add_subdirectory(external/synth_lib)
 target_link_libraries(${CMAKE_PROJECT_NAME}
     stm32cubemx
     synth
+    m
     # Add user defined libraries
 )
