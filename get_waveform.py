@@ -7,7 +7,15 @@ if not os.path.isdir(output_dir):
     print(f"{output_dir} is not a directory! Aborting.")
     exit(1)
 
-output_filename = os.path.join(output_dir, "dump.bin")
+output_path = os.path.join(output_dir, "dump.bin")
+
+try:
+    open(output_path, "w")
+except Exception as e:
+    print(f"Could not create empty output file: {e}")
+    exit(1)
+else:
+    print(f"Created empty file {output_path}")
 
 e = Emulation()
 m = Monitor()
@@ -26,7 +34,7 @@ if value != 0:
 
     address = sysbus.GetSymbolAddress('g_buffer')
     width = 4000
-    filename = '{output_filename}'
+    filename = '{output_path}'
 
     data = sysbus.ReadBytes(address, width)
     with open(filename, 'ab') as f: f.write(bytes(data))
