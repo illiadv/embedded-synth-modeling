@@ -1,6 +1,13 @@
+import sys
 import subprocess
 import shlex
 from pyrenode3.wrappers import Emulation, Monitor
+
+try:
+    impl_name = sys.argv[1]
+except IndexError:
+    print("No implementation name provided! Aborting.")
+    exit(1)
 
 e = Emulation()
 m = Monitor()
@@ -11,12 +18,18 @@ stm32.load_repl("platforms/cpus/stm32f4.repl")
 stm32.load_elf("build/Debug/f401.elf")
 stm32.sysbus.timer1.Frequency = 8000000
 
+try:
+    stm32.sysbus.GetSymbolAddress(f"GetSample_{impl_name}")
+except Exception as e:
+    print(f"No symbol for selected implementation {impl_name} found")
+    exit(1)
+
 stm32.StartGdbServer(3333)
 
-cmd_gdb = """arm-none-eabi-gdb -batch
+cmd_gdb = f"""arm-none-eabi-gdb -batch
     -ex "source gdb_count_inst.py"
     -ex "target remote :3333"
-    -ex "break GetSample_wt_trunc"
+    -ex "break GetSample_{impl_name}"
     -ex "continue"
     -ex "count_inst"
     ./build/Debug/f401.elf
