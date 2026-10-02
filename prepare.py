@@ -1,4 +1,13 @@
 from pyrenode3.wrappers import Emulation, Monitor
+import os
+
+cwd = os.getcwd()
+output_dir = os.path.join(cwd, "output")
+if not os.path.isdir(output_dir):
+    print(f"{output_dir} is not a directory! Aborting.")
+    exit(1)
+
+output_filename = os.path.join(output_dir, "dump.bin")
 
 e = Emulation()
 m = Monitor()
@@ -9,13 +18,15 @@ stm32.load_repl("platforms/cpus/stm32f4.repl")
 stm32.load_elf("build/Debug/f401.elf")
 stm32.sysbus.timer1.Frequency = 8000000
 
-buffer_full_hook = """
+
+
+buffer_full_hook = f"""
 if value != 0:
     sysbus = cpu.GetMachine()['sysbus']
 
     address = sysbus.GetSymbolAddress('g_buffer')
     width = 4000
-    filename = '/home/user/src/my/renode/f401/output/dump.bin'
+    filename = '{output_filename}'
 
     data = sysbus.ReadBytes(address, width)
     with open(filename, 'ab') as f: f.write(bytes(data))
