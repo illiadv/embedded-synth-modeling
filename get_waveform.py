@@ -1,5 +1,7 @@
 from pyrenode3.wrappers import Emulation, Monitor
+from Antmicro.Renode.Peripherals.Bus import Access, SysbusAccessWidth
 import os
+import time
 
 cwd = os.getcwd()
 output_dir = os.path.join(cwd, "output")
@@ -38,11 +40,16 @@ if value != 0:
 
     data = sysbus.ReadBytes(address, width)
     with open(filename, 'ab') as f: f.write(bytes(data))
-    cpu.InfoLog('Hook finished')
+    print 'Hook finished'
     if value == 4:
-	cpu.InfoLog('Finished writing')
+	print 'Finished writing'
 	cpu.Pause()
 """
 
-hook_address = stm32.sysbus.GetSymbolAddress("g_buffer_fill_count")
-# stm32.sysbus.AddWatchpointHook(
+hook_trigger_address = stm32.sysbus.GetSymbolAddress("g_buffer_fill_count")
+stm32.sysbus.AddWatchpointHook(hook_trigger_address, SysbusAccessWidth.DoubleWord, Access.Write, buffer_full_hook)
+
+e.StartAll()
+
+time.sleep(5);
+print("Exiting")
