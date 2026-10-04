@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build_and_run:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,3 +29,15 @@ jobs:
         with:
           name: Firmware
           path: build/Debug/f401.elf
+
+      - name: Cache Renode download
+        id: cache-renode
+        uses: actions/cache@v4
+        with:
+          path: ./renode.tar.gz
+          key: renode-archive
+        
+      - name: Download Renode
+        if: steps.cache-renode.outputs.cache-hit != 'true'
+        run: |
+          curl -sSLf -o renode.tar.gz "https://builds.renode.io/renode-latest.linux-portable.tar.gz"
