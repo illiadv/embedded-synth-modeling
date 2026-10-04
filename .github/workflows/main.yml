@@ -41,3 +41,18 @@ jobs:
         if: steps.cache-renode.outputs.cache-hit != 'true'
         run: |
           curl -sSLf -o renode.tar.gz "https://builds.renode.io/renode-latest.linux-portable.tar.gz"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
+        with:
+          version: "0.12.23"
+
+      - name: Install pyrenode
+        run: |
+          uv venv
+          uv pip install 'pyrenode3[all] @ git+https://github.com/antmicro/pyrenode3.git'
+
+      - name: Run get_waveform.py
+        run: |
+          export PYRENODE_PATH=./renode.tar.gz
+          uv run python3 get_waveform.py --sampling-rate 8000
