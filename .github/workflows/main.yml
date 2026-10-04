@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          subodules: 'recursive'
+          submodules: 'recursive'
 
       - name: Install arm-none-eabi-gcc
         uses: carlosperate/arm-none-eabi-gcc-action@v1
