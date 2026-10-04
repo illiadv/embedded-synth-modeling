@@ -23,6 +23,6 @@ class CountInstructions(gdb.Command):
           if current_frame == caller_frame:
               break
               
-      print(f"Total instructions executed: {count}")
+      print(f"Instructions executed: {count}")
 
 CountInstructions()

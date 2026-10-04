@@ -40,11 +40,11 @@ cmd_gdb = f"""gdb -batch
 args_gdb = shlex.split(cmd_gdb)
 
 proc_gdb = subprocess.Popen(args_gdb, stdout=subprocess.PIPE, text=True)
-proc_grep = subprocess.Popen(["grep", "Total"], stdin=proc_gdb.stdout, stdout=subprocess.PIPE, text=True)
+proc_grep = subprocess.Popen(["grep", "Instructions executed"], stdin=proc_gdb.stdout, stdout=subprocess.PIPE, text=True)
 
 assert proc_gdb.stdout is not None
 
 proc_gdb.stdout.close()
 output, _ = proc_grep.communicate();
 
-print(f"Output: {output}")
+print(f"{output}")
