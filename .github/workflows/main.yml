@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install arm-none-eabi-gcc
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
+
+      - name: Configure CMake
+        run: cmake --preset Debug -DACTIVE_IMPL=wt_lerp
+
+      - name: Build firmware
+        run: cmake --build --preset Debug --target f401
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: Firmware
+          path: build/debug/f401.elf
