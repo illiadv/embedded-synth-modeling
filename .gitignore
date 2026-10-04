@@ -7,3 +7,4 @@ Release/
 .mxproject
 .project
 *.launch
+compile_commands.json
