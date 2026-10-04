@@ -56,3 +56,9 @@ jobs:
         run: |
           export PYRENODE_PATH=./renode.tar.gz
           uv run python3 get_waveform.py --sampling-rate 8000
+
+      - name: Upload waveform
+        uses: actions/upload-artifact@v7
+        with:
+          name: Waveform
+          path: output/dump.bin
