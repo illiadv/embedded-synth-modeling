@@ -1,13 +1,15 @@
 import sys
 import subprocess
 import shlex
+import argparse
 from pyrenode3.wrappers import Emulation, Monitor
 
-try:
-    impl_name = sys.argv[1]
-except IndexError:
-    print("No implementation name provided! Aborting.")
-    exit(1)
+parser = argparse.ArgumentParser()
+parser.add_argument("--impl-name", type=str, required=True)  
+args = parser.parse_args()
+impl_name = args.impl_name
+
+parser = argparse.ArgumentParser
 
 e = Emulation()
 m = Monitor()
