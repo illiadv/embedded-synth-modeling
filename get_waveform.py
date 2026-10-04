@@ -12,8 +12,12 @@ buffer_size = 512
 
 cwd = os.getcwd()
 output_dir = os.path.join(cwd, "output")
-if not os.path.isdir(output_dir):
-    print(f"{output_dir} is not a directory! Aborting.")
+try:
+    os.mkdir(output_dir)
+except FileExistsError:
+    pass
+except Exception:
+    print(f"Could not create directory {output_dir}. Aborting.")
     exit(1)
 
 output_path = os.path.join(output_dir, "dump.bin")
