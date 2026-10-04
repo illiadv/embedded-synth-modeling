@@ -58,12 +58,12 @@ static void MX_USART2_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-#define BUFFER_SIZE 4000
+#define BUFFER_SIZE 512
 
 Oscillator osc;
 
-sound_sample_t g_buffer[4000] = {0};
-unsigned int g_buffer_fill_count = 0;
+sound_sample_t g_buffer[BUFFER_SIZE] = {0};
+unsigned int g_buffer_bytes_written = 0;
 
 void UART_Print(const char *string)
 {
@@ -87,7 +87,7 @@ void TIM1_UP_Callback(void)
     if (sample_i == BUFFER_SIZE)
     {
 	sample_i = 0;
-	g_buffer_fill_count++;
+	g_buffer_bytes_written += BUFFER_SIZE;
 	BufferFullCallback();
     }
 }
