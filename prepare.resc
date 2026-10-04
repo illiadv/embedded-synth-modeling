@@ -1,4 +1,0 @@
-mach create
-machine LoadPlatformDescription @platforms/cpus/stm32f4.repl
-sysbus LoadELF @build/Debug/f401.elf
-sysbus.timer1 Frequency 8000000
