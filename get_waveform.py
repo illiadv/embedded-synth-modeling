@@ -2,8 +2,12 @@ from pyrenode3.wrappers import Emulation, Monitor
 from Antmicro.Renode.Peripherals.Bus import Access, SysbusAccessWidth
 import os
 import time
+import argparse
 
-sampling_rate = 8000
+parser = argparse.ArgumentParser()
+parser.add_argument("--sampling-rate", type=int, required=True)  
+args = parser.parse_args()
+
 buffer_size = 512
 
 cwd = os.getcwd()
@@ -39,7 +43,7 @@ if value != 0:
 
     address = sysbus.GetSymbolAddress('g_buffer')
 
-    sampling_rate = {sampling_rate}
+    sampling_rate = {args.sampling_rate}
     buffer_size = {buffer_size}
     filename = '{output_path}'
     bytes_written = value
