@@ -15,9 +15,11 @@ jobs:
         with:
           submodules: 'recursive'
 
+      # Install build prerequisites
       - name: Install arm-none-eabi-gcc
         uses: carlosperate/arm-none-eabi-gcc-action@v1
 
+      # Configure and build
       - name: Configure CMake
         run: cmake --preset Debug -DACTIVE_IMPL=wt_lerp
 
@@ -30,6 +32,7 @@ jobs:
           name: Firmware
           path: build/Debug/f401.elf
 
+      # Download Renode
       - name: Cache Renode download
         id: cache-renode
         uses: actions/cache@v4
@@ -42,23 +45,31 @@ jobs:
         run: |
           curl -sSLf -o renode.tar.gz "https://builds.renode.io/renode-latest.linux-portable.tar.gz"
 
+      # Install Python and required packages
       - name: Install uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
         with:
           version: "0.12.23"
 
-      - name: Install pyrenode
+      - name: Install Python dependencies
         run: |
           uv venv
           uv pip install 'pyrenode3[all] @ git+https://github.com/antmicro/pyrenode3.git'
+          uv pip install matplotlib numpy
 
+      # Run scripts
       - name: Run get_waveform.py
         run: |
           export PYRENODE_PATH=./renode.tar.gz
           uv run python3 get_waveform.py --sampling-rate 8000
 
-      - name: Upload waveform
+      - name: Run plot_spectrum.py
+        run: |
+          export PYRENODE_PATH=./renode.tar.gz
+          uv run python3 plot_spectrum.py --sampling-rate 8000
+
+      - name: Upload output artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: Waveform
-          path: output/dump.bin
+          name: Output
+          path: output/
