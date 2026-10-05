@@ -9,6 +9,7 @@ parser.add_argument("--sampling-rate", type=int, required=True)
 args = parser.parse_args()
 
 buffer_size = 512
+bytes_per_sample = 2
 
 cwd = os.getcwd()
 output_dir = os.path.join(cwd, "output")
@@ -33,6 +34,8 @@ else:
 e = Emulation()
 m = Monitor()
 
+m.execute(f"logFile @{os.path.join(output_dir, "renode.log")}")
+
 stm32 = e.add_mach()
 assert stm32 is not None
 stm32.load_repl("platforms/cpus/stm32f4.repl")
@@ -50,24 +53,25 @@ if value != 0:
     sampling_rate = {args.sampling_rate}
     buffer_size = {buffer_size}
     filename = '{output_path}'
-    bytes_written = value
+    samples_written = value
 
-    width = buffer_size
+    width = buffer_size * {bytes_per_sample}
 
-    if bytes_written > sampling_rate:
-        width = buffer_size - (bytes_written - sampling_rate)
+    if samples_written > sampling_rate:
+        width = (buffer_size - (samples_written - sampling_rate))
+        width *= {bytes_per_sample}
 
     data = sysbus.ReadBytes(address, width)
     with open(filename, 'ab') as f: f.write(bytes(data))
     print '%d bytes written' % width
 
-    if bytes_written > sampling_rate:
+    if samples_written > sampling_rate:
         print 'Finished writing'
         cpu.Pause()
 """
 
 try:
-    hook_trigger_address = stm32.sysbus.GetSymbolAddress("g_buffer_bytes_written")
+    hook_trigger_address = stm32.sysbus.GetSymbolAddress("g_buffer_samples_written")
     stm32.sysbus.AddWatchpointHook(hook_trigger_address, SysbusAccessWidth.DoubleWord, Access.Write, buffer_full_hook)
 except Exception as e:
     print(f"Exception: {e}")
