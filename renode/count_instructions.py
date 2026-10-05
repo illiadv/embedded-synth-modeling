@@ -29,7 +29,7 @@ except Exception as e:
 stm32.StartGdbServer(3333)
 
 cmd_gdb = f"""gdb -batch
-    -ex "source gdb_count_inst.py"
+    -ex "source renode/gdb_count_inst.py"
     -ex "target remote :3333"
     -ex "break GetSample_{impl_name}"
     -ex "continue"

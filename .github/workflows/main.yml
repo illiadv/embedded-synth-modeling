@@ -58,10 +58,10 @@ jobs:
           uv pip install matplotlib numpy
 
       # Run scripts
-      - name: Run get_waveform.py
+      - name: Run renode/get_waveform.py
         run: |
           export PYRENODE_PATH=./renode.tar.gz
-          uv run python3 get_waveform.py --sampling-rate 8000
+          uv run python3 renode/get_waveform.py --sampling-rate 8000
 
       - name: Run plot_spectrum.py
         run: |
