@@ -3,9 +3,9 @@ import numpy as np
 import os
 import argparse
 
-def plot_spectrum(file_path: str, sample_rate: int = 8000):
+def plot_spectrum(input_path: str, output_path: str, sample_rate: int = 8000):
     
-    data = np.fromfile(file_path, dtype=np.int16)
+    data = np.fromfile(input_path, dtype=np.int16)
     n = len(data)
 
     if n == 0:
@@ -32,7 +32,7 @@ def plot_spectrum(file_path: str, sample_rate: int = 8000):
     plt.figure(figsize=(10, 4))
     plt.plot(freqs, magnitude_db)
 
-    plt.title(f"Frequency Spectrum ({sample_rate} Hz Mono PCM ({file_path})")
+    plt.title(f"Frequency Spectrum ({sample_rate} Hz Mono PCM ({input_path})")
     plt.xlabel("Frequency (Hz)")
     plt.ylabel("Magnitude (dBFS)")
     plt.xlim(0, sample_rate / 2)
@@ -40,15 +40,17 @@ def plot_spectrum(file_path: str, sample_rate: int = 8000):
     plt.grid(True, linestyle="--", alpha=0.6)
 
     plt.tight_layout()
+    plt.savefig(output_path)
     plt.show()
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("input_file", type=str)  
+    parser.add_argument("output_file", type=str)  
     parser.add_argument("--sampling-rate", type=int, required=True)  
     args = parser.parse_args()
 
-    plot_spectrum(args.input_file, args.sampling_rate)
+    plot_spectrum(args.input_file, args.output_file, args.sampling_rate)
 
 if __name__ == "__main__":
     main()
