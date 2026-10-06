@@ -28,7 +28,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y gdb-multiarch
-      # Symlink so scripts calling 'arm-none-eabi-gdb' still work
+          # Symlink so scripts calling 'arm-none-eabi-gdb' still work
           sudo ln -s /usr/bin/gdb-multiarch /usr/local/bin/arm-none-eabi-gdb
 
       - name: Verify GDB installation
