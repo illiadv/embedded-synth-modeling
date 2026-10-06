@@ -28,14 +28,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y gdb-multiarch
-          # Symlink so scripts calling 'arm-none-eabi-gdb' still work
-          sudo ln -s /usr/bin/gdb-multiarch /usr/local/bin/arm-none-eabi-gdb
 
       - name: Verify GDB installation
-        run: arm-none-eabi-gdb --version
+        run: gdb-multiarch --version
 
       - name: Test GDB Python support
-        run: arm-none-eabi-gdb --batch -ex "python print('Python support is active!')"
+        run: gdb-multiarch --batch -ex "python print('Python support is active!')"
 
       # Configure and build
       - name: Configure CMake
