@@ -9,6 +9,10 @@ on:
 jobs:
   build_and_run:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        impl: [wt_lerp, wt_trunc]
+        sampling_rate: [8000, 44100]
 
     steps:
       - uses: actions/checkout@v7
@@ -21,7 +25,7 @@ jobs:
 
       # Configure and build
       - name: Configure CMake
-        run: cmake --preset Debug -DACTIVE_IMPL=wt_lerp
+        run: cmake --preset Debug -DACTIVE_IMPL=${{ matrix.impl }} -DSAMPLING_RATE=${{ matrix.sampling_rate }}
 
       - name: Build firmware
         run: cmake --build --preset Debug --target f401
@@ -61,12 +65,12 @@ jobs:
       - name: Run renode/get_waveform.py
         run: |
           export PYRENODE_PATH=./renode.tar.gz
-          uv run python3 renode/get_waveform.py --sampling-rate 8000
+          uv run python3 renode/get_waveform.py --sampling-rate ${{ matrix.sampling_rate }}
 
       - name: Run plot_spectrum.py
         run: |
           export PYRENODE_PATH=./renode.tar.gz
-          uv run python3 plot_spectrum.py output/dump.bin output/spectrum.png --sampling-rate 8000
+          uv run python3 plot_spectrum.py output/dump.bin output/spectrum.png --sampling-rate ${{ matrix.sampling_rate }}
 
       - name: Upload output artifacts
         uses: actions/upload-artifact@v7
