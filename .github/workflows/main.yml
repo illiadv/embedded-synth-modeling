@@ -34,6 +34,9 @@ jobs:
       - name: Verify GDB installation
         run: arm-none-eabi-gdb --version
 
+      - name: Test GDB Python support
+        run: arm-none-eabi-gdb --batch -ex "python print('Python support is active!')"
+
       # Configure and build
       - name: Configure CMake
         run: cmake --preset Debug -DACTIVE_IMPL=${{ matrix.impl }} -DSAMPLING_RATE=${{ matrix.sampling_rate }}
