@@ -20,8 +20,19 @@ jobs:
           submodules: 'recursive'
 
       # Install build prerequisites
+      # GCC
       - name: Install arm-none-eabi-gcc
         uses: carlosperate/arm-none-eabi-gcc-action@v1
+      # GDB
+      - name: Install gdb-multiarch
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gdb-multiarch
+      # Symlink so scripts calling 'arm-none-eabi-gdb' still work
+          sudo ln -s /usr/bin/gdb-multiarch /usr/local/bin/arm-none-eabi-gdb
+
+      - name: Verify GDB installation
+        run: arm-none-eabi-gdb --version
 
       # Configure and build
       - name: Configure CMake
@@ -66,6 +77,11 @@ jobs:
         run: |
           export PYRENODE_PATH=./renode.tar.gz
           uv run python3 renode/get_waveform.py --sampling-rate ${{ matrix.sampling_rate }}
+
+      - name: Run count_instructions.py
+        run: |
+          export PYRENODE_PATH=./renode.tar.gz
+          uv run python3 renode/count_instructions.py --impl-name ${{ matrix.impl }}
 
       - name: Run plot_spectrum.py
         run: |
