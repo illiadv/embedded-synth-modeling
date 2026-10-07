@@ -39,6 +39,7 @@ cmd_gdb = f"""gdb-multiarch -batch
 
 args_gdb = shlex.split(cmd_gdb)
 
+# TODO: must fail if gdb process fails
 proc_gdb = subprocess.Popen(args_gdb, stdout=subprocess.PIPE, text=True)
 proc_grep = subprocess.Popen(["grep", "Instructions executed"], stdin=proc_gdb.stdout, stdout=subprocess.PIPE, text=True)
 
