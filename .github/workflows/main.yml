@@ -47,8 +47,8 @@ jobs:
 
           RAM_USED=$(grep "RAM:" output/build.log | awk '{print $2}')
           RAM_PCT=$(grep "RAM:" output/build.log | awk '{print $6}')
-          FLASH_USED=$(grep "FLASH:" output/bbuild.log | awk '{print $2}')
-          FLASH_PCT=$(grep "FLASH:" output/bbuild.log | awk '{print $6}')
+          FLASH_USED=$(grep "FLASH:" output/build.log | awk '{print $2}')
+          FLASH_PCT=$(grep "FLASH:" output/build.log | awk '{print $6}')
 
           echo "RAM_USED=$RAM_USED" >> $GITHUB_ENV
           echo "RAM_PCT=$RAM_PCT" >> $GITHUB_ENV
