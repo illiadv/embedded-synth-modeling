@@ -46,7 +46,7 @@ jobs:
           cmake --build --preset Debug --target f401 | tee output/build.log
 
           RAM_USED=$(grep "RAM:" output/build.log | awk '{print $2}')
-          RAM_PCT=$(grep "RAM:" boutput/build.log | awk '{print $6}')
+          RAM_PCT=$(grep "RAM:" output/build.log | awk '{print $6}')
           FLASH_USED=$(grep "FLASH:" output/bbuild.log | awk '{print $2}')
           FLASH_PCT=$(grep "FLASH:" output/bbuild.log | awk '{print $6}')
 
