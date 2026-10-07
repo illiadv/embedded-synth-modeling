@@ -41,6 +41,7 @@ jobs:
 
       - name: Build firmware
         run: |
+          mkdir output
           set -o pipefail
           cmake --build --preset Debug --target f401 | tee output/build.log
 
