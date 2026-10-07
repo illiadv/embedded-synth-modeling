@@ -40,7 +40,19 @@ jobs:
         run: cmake --preset Debug -DACTIVE_IMPL=${{ matrix.impl }} -DSAMPLING_RATE=${{ matrix.sampling_rate }}
 
       - name: Build firmware
-        run: cmake --build --preset Debug --target f401
+        run: |
+          set -o pipefail
+          cmake --build --preset Debug --target f401 | tee output/build.log
+
+          RAM_USED=$(grep "RAM:" output/build.log | awk '{print $2}')
+          RAM_PCT=$(grep "RAM:" boutput/build.log | awk '{print $6}')
+          FLASH_USED=$(grep "FLASH:" output/bbuild.log | awk '{print $2}')
+          FLASH_PCT=$(grep "FLASH:" output/bbuild.log | awk '{print $6}')
+
+          echo "RAM_USED=$RAM_USED" >> $GITHUB_ENV
+          echo "RAM_PCT=$RAM_PCT" >> $GITHUB_ENV
+          echo "FLASH_USED=$FLASH_USED" >> $GITHUB_ENV
+          echo "FLASH_PCT=$FLASH_PCT" >> $GITHUB_ENV
 
       - name: Upload binary
         uses: actions/upload-artifact@v7
@@ -94,3 +106,9 @@ jobs:
         with:
           name: Output
           path: output/
+
+      - name: Report memory usage
+        run: |
+          echo "### Firmware Memory Usage" >> $GITHUB_STEP_SUMMARY
+          echo "- RAM: ${{ env.RAM_USED }} bytes (${{ env.RAM_PCT }})" >> $GITHUB_STEP_SUMMARY
+          echo "- FLASH: ${{ env.FLASH_USED }} bytes (${{ env.FLASH_PCT }})" >> $GITHUB_STEP_SUMMARY
