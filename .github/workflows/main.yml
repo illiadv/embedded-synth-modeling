@@ -43,15 +43,16 @@ jobs:
         run: |
           BUILD_NAME=${{ matrix.impl }}_${{ matrix.sampling_rate }}
           echo "BUILD_NAME=$BUILD_NAME" >> $GITHUB_ENV
+          BUILD_LOG=output/build_$BUILD_NAME.log
 
           mkdir output
           set -o pipefail
           cmake --build --preset Debug --target f401 | tee output/build_$BUILD_NAME.log
 
-          RAM_USED=$(grep "RAM:" output/build.log | awk '{print $2}')
-          RAM_PCT=$(grep "RAM:" output/build.log | awk '{print $6}')
-          FLASH_USED=$(grep "FLASH:" output/build.log | awk '{print $2}')
-          FLASH_PCT=$(grep "FLASH:" output/build.log | awk '{print $6}')
+          RAM_USED=$(grep "RAM:" $BUILD_LOG | awk '{print $2}')
+          RAM_PCT=$(grep "RAM:" $BUILD_LOG | awk '{print $6}')
+          FLASH_USED=$(grep "FLASH:" $BUILD_LOG | awk '{print $2}')
+          FLASH_PCT=$(grep "FLASH:" $BUILD_LOG | awk '{print $6}')
 
           echo "RAM_USED=$RAM_USED" >> $GITHUB_ENV
           echo "RAM_PCT=$RAM_PCT" >> $GITHUB_ENV
