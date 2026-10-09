@@ -2,52 +2,42 @@ import numpy as np
 import argparse
 
 def calculate_snr(
-    file_path: str,
+    file_path: str = "waveform_dump.bin",
     sampling_rate: int = 8000,
     f0: float = 220.0,
-    max_harmonics: int = 10,
-):
+) -> float:
     # 1. Load 16-bit signed PCM data
     data = np.fromfile(file_path, dtype=np.int16).astype(np.float64)
     n = len(data)
     if n == 0:
         raise ValueError("The provided file is empty.")
 
+    # 2. Create time vector
     t = np.arange(n) / sampling_rate
 
-    # 2. Fit 220 Hz reference wave: y(t) = A*cos(w0*t) + B*sin(w0*t) + C (DC)
-    omega0 = 2 * np.pi * f0
-    design_matrix = np.column_stack(
-        [np.cos(omega0 * t), np.sin(omega0 * t), np.ones(n)]
-    )
-    coeffs, _, _, _ = np.linalg.lstsq(design_matrix, data, rcond=None)
-    a1, b1, dc_offset = coeffs
+    # 3. Build the design matrix for least-squares sine wave fitting
+    # Model: A*sin(2*pi*f0*t) + B*cos(2*pi*f0*t) + C (DC offset)
+    omega = 2 * np.pi * f0
+    X = np.column_stack((np.sin(omega * t), np.cos(omega * t), np.ones(n)))
 
-    # Fundamental amplitude and power
-    v_fund = np.sqrt(a1**2 + b1**2)
-    p_fund = (v_fund**2) / 2.0
+    # 4. Solve for coefficients [A, B, C]
+    coeffs, _, _, _ = np.linalg.lstsq(X, data, rcond=None)
 
-    # Fit Harmonics (2*f0, 3*f0, ... up to Nyquist: 4000 Hz)
-    nyquist = sampling_rate / 2.0
-    k_max = int(min(max_harmonics, nyquist // f0))
-    harmonic_powers = []
+    # 5. Reconstruct the ideal AC signal (ignoring the DC offset)
+    ideal_ac_signal = coeffs[0] * np.sin(omega * t) + coeffs[1] * np.cos(omega * t)
+    
+    # 6. Calculate the noise
+    total_fit = ideal_ac_signal + coeffs[2]
+    noise = data - total_fit
 
-    for k in range(2, k_max + 1):
-        wk = 2 * np.pi * (k * f0)
-        h_matrix = np.column_stack([np.cos(wk * t), np.sin(wk * t)])
-        h_coeffs, _, _, _ = np.linalg.lstsq(h_matrix, data, rcond=None)
-        vk = np.sqrt(h_coeffs[0] ** 2 + h_coeffs[1] ** 2)
-        harmonic_powers.append((vk**2) / 2.0)
+    # 7. Calculate power and SNR
+    signal_power = np.mean(ideal_ac_signal**2)
+    noise_power = np.mean(noise**2)
 
-    p_harmonics = np.sum(harmonic_powers)
-
-    # 4. Noise power (Total AC Power - Fundamental Power - Harmonic Power)
-    ac_signal = data - dc_offset
-    p_total_ac = np.mean(ac_signal**2)
-    p_noise = max(p_total_ac - p_fund - p_harmonics, 1e-12)
-
-    # Compute SNR
-    snr_db = 10.0 * np.log10(p_fund / p_noise)
+    if noise_power == 0:
+        return float('inf')
+        
+    snr_db = 10 * np.log10(signal_power / noise_power)
     return snr_db
 
 def main():
