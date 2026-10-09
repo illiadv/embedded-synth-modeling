@@ -108,7 +108,7 @@ jobs:
       - name: Run calculate_snr.py
         run: |
           uv run calculate_snr.py --sampling-rate ${{ matrix.sampling_rate }} --frequency 220 output/dump.bin | tee output/metrics_$BUILD_NAME.txt
-          SNR=$(awk '{print $2}' metrics_$BUILD_NAME.txt)
+          SNR=$(awk '{print $2}' output/metrics_$BUILD_NAME.txt)
           echo "SNR=$SNR" >> $GITHUB_ENV
 
       - name: Upload output artifacts
