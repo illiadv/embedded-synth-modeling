@@ -103,8 +103,11 @@ jobs:
 
       - name: Run plot_spectrum.py
         run: |
-          export PYRENODE_PATH=./renode.tar.gz
           uv run python3 plot_spectrum.py output/dump.bin output/spectrum_${{ env.BUILD_NAME }}.png --sampling-rate ${{ matrix.sampling_rate }}
+
+      - name: Run calculate_snr.py
+        run: |
+          uv run calculate_snr.py --sampling-rate ${{ matrix.sampling_rate }} --frequency 220 output/dump.bin
 
       - name: Upload output artifacts
         uses: actions/upload-artifact@v7
