@@ -62,7 +62,7 @@ jobs:
       - name: Upload binary
         uses: actions/upload-artifact@v7
         with:
-          name: Firmware
+          name: firmware_${{ env.BUILD_NAME }}
           path: build/Debug/f401.elf
 
       # Download Renode
