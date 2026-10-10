@@ -32,7 +32,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define STR(s) #s
+#define XSTR(s) STR(s)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -133,7 +134,8 @@ int main(void)
   MX_TIM1_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  UART_Print("Hello world!\r\n");
+  UART_Print("Rate: " XSTR(SAMPLING_RATE) "\r\n");
+  LL_mDelay(200);
   InitOsc(osc, 220.0f);
   LL_TIM_EnableIT_UPDATE(TIM1);
   LL_TIM_EnableCounter(TIM1);
