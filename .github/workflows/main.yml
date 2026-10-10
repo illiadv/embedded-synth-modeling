@@ -100,7 +100,7 @@ jobs:
         run: |
           export PYRENODE_PATH=./renode.tar.gz
           uv run python3 renode/count_instructions.py --impl-name ${{ matrix.impl }} | tee --append output/metrics_$BUILD_NAME.txt
-          INST_COUNT=$(grep Instructions | awk '{print $2}' output/metrics_$BUILD_NAME.txt)
+          INST_COUNT=$(grep Instructions output/metrics_$BUILD_NAME.txt | awk '{print $2}')
           echo "INST_COUNT=$INST_COUNT" >> $GITHUB_ENV
 
       - name: Run plot_spectrum.py
@@ -110,7 +110,7 @@ jobs:
       - name: Run calculate_snr.py
         run: |
           uv run calculate_snr.py --sampling-rate ${{ matrix.sampling_rate }} --frequency 220 output/dump.bin | tee --append output/metrics_$BUILD_NAME.txt
-          SNR=$(grep SNR | awk '{print $2}' output/metrics_$BUILD_NAME.txt)
+          SNR=$(grep SNR output/metrics_$BUILD_NAME.txt | awk '{print $2}')
           echo "SNR=$SNR" >> $GITHUB_ENV
 
       - name: Upload output artifacts
