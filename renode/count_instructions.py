@@ -48,4 +48,4 @@ assert proc_gdb.stdout is not None
 proc_gdb.stdout.close()
 output, _ = proc_grep.communicate();
 
-print(f"{output}")
+print(f"Instructions: {output}")
