@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        impl: [wt_lerp, wt_trunc]
-        sampling_rate: [8000, 44100]
+        impl: [wt_lerp, wt_trunc, fm_sin, fm_lut]
+        sampling_rate: [8000, 48000]
 
     steps:
       - uses: actions/checkout@v7
