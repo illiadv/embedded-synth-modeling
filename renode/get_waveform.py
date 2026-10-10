@@ -1,4 +1,4 @@
-from pyrenode3.wrappers import Emulation, Monitor
+from pyrenode3.wrappers import Emulation, Monitor, TerminalTester
 from Antmicro.Renode.Peripherals.Bus import Access, SysbusAccessWidth
 import os
 import time
@@ -42,7 +42,16 @@ stm32.load_repl("platforms/cpus/stm32f4.repl")
 stm32.load_elf("build/Debug/f401.elf")
 stm32.sysbus.timer1.Frequency = 8000000
 
+t = TerminalTester(stm32.sysbus.usart2, 0.1)
+e.StartAll()
 
+result = t.WaitFor([f"Rate: {args.sampling_rate}"], includeUnfinishedLine=True)
+if (result == None):
+    print("Sampling rate test failed:")
+    print(t.GetReport())
+    exit(1)
+else:
+    print("Sampling rate test passed")
 
 buffer_full_hook = f"""
 if value != 0:
@@ -77,7 +86,6 @@ except Exception as e:
     print(f"Exception: {e}")
     exit(1)
 
-e.StartAll()
 
 time.sleep(5);
 print("Exiting")
