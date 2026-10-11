@@ -10,9 +10,10 @@ def parse_args():
     return parser.parse_args()
 
 
-def extract_metrics(input_dir: str, img_dir: str):
+def extract_metrics(input_dir: str, img_dir: str, audio_dir: str):
     table = list()
     images = list()
+    audio = list()
 
     artifacts = filter(lambda s: s.startswith("output_"), os.listdir(input_dir))
     for subdir in artifacts:
@@ -32,6 +33,13 @@ def extract_metrics(input_dir: str, img_dir: str):
             shutil.copy2(src_img_path, os.path.join(img_dir, img_name))
             images.append(img_name)
 
+        # Copy audio files into audio_dir
+        audio_name = f"audio_{build_name}.wav"
+        src_audio_path = os.path.join(subdir_path, audio_name)
+        if os.path.isfile(src_audio_path):
+            shutil.copy2(src_audio_path, os.path.join(audio_dir, audio_name))
+            audio.append(audio_name)
+
         metrics_file = os.path.join(subdir_path, f"metrics_{build_name}.txt")
         with open(metrics_file, "r") as f:
             for line in f.readlines():
@@ -49,7 +57,7 @@ def extract_metrics(input_dir: str, img_dir: str):
                     metrics["flash"] = line.split()[1]
 
         table.append(metrics)
-    return table, images
+    return table, images, audio
 
 
 def create_html_image_list(images):
@@ -63,17 +71,25 @@ def create_html_image_list(images):
     return f"      <ul>\n{items}\n      </ul>"
 
 
-def create_html_table(metrics_table):
+def create_html_table(metrics_table, audio_list):
     table = "<table border='1'>"
-    table += "<tr><th>Build name</th><th>RAM</th><th>FLASH</th><th>Instructions</th><th>SNR</th></tr>"
+    table += """<tr>
+    <th>Build name</th>
+    <th>RAM</th>
+    <th>FLASH</th>
+    <th>Instructions</th>
+    <th>SNR</th>
+    <th>Audio</th>
+    </tr>"""
 
-    for row in metrics_table:
+    for i, row in enumerate(metrics_table):
         html_row = "<tr>"
         html_row += f"<td><b>{row['name']}</b></td>"
         html_row += f"<td>{row['ram']}</td>"
         html_row += f"<td>{row['flash']}</td>"
         html_row += f"<td>{row['inst_count']}</td>"
         html_row += f"<td>{row['snr']}</td>"
+        html_row += f"<td><audio controls><source src='audio/{audio_list[i]}' type='audio/wav'>Audio not supported</audio></td>"
         html_row += "</tr>"
 
         table += html_row
@@ -93,8 +109,8 @@ def create_html_doc(image_list_html, html_table):
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-{image_list_html}
 {html_table}
+{image_list_html}
 </body>
 </html>"""
 
@@ -115,9 +131,14 @@ def main():
     if not os.path.isdir(img_dir):
         os.mkdir(img_dir)
 
-    table, images = extract_metrics(args.input_dir, img_dir)
+    audio_dir = os.path.join(args.output_dir, "audio")
+
+    if not os.path.isdir(audio_dir):
+        os.mkdir(audio_dir)
+
+    table, images, audio = extract_metrics(args.input_dir, img_dir, audio_dir)
     image_list_html = create_html_image_list(images)
-    html_table = create_html_table(table)
+    html_table = create_html_table(table, audio)
     document = create_html_doc(image_list_html, html_table)
 
     report_path = os.path.join(args.output_dir, "report.html")
