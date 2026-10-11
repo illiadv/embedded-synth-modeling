@@ -4,7 +4,7 @@ import os
 def parse_args():  
     parser = argparse.ArgumentParser()  
     parser.add_argument("input_dir", type=str, help="Input directory")  
-    parser.add_argument("output_file", type=str, help="Output file name")  
+    parser.add_argument("output_dir", type=str, help="Output directory")  
     return parser.parse_args()  
 
 def extract_metrics(input_dir: str):
@@ -82,12 +82,23 @@ def main():
         print(f"Error: {args.input_dir} is not a directory")
         exit(1)
 
+    if not os.path.isdir(args.output_dir):
+        os.mkdir(args.output_dir)
+
+    img_dir = os.path.join(args.output_dir, "img")
+
+    if not os.path.isdir(img_dir):
+        os.mkdir(img_dir)
+
     table = extract_metrics(args.input_dir)
     html_table = create_html_table(table)
     document = create_html_doc(html_table)
 
-    with open(args.output_file, "w") as out_file:
+    report_path = os.path.join(args.output_dir, "report.html")
+    
+    with open(report_path, "w") as out_file:
         out_file.write(document)
+
 
 if __name__ == "__main__":
     main()
