@@ -1,27 +1,38 @@
 import argparse
 import os
+import shutil
 
-def parse_args():  
-    parser = argparse.ArgumentParser()  
-    parser.add_argument("input_dir", type=str, help="Input directory")  
-    parser.add_argument("output_dir", type=str, help="Output directory")  
-    return parser.parse_args()  
 
-def extract_metrics(input_dir: str):
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input_dir", type=str, help="Input directory")
+    parser.add_argument("output_dir", type=str, help="Output directory")
+    return parser.parse_args()
 
+
+def extract_metrics(input_dir: str, img_dir: str):
     table = list()
+    images = list()
 
     artifacts = filter(lambda s: s.startswith("output_"), os.listdir(input_dir))
     for subdir in artifacts:
         metrics = dict()
-        if not os.path.isdir(os.path.join(input_dir, subdir)):
+        subdir_path = os.path.join(input_dir, subdir)
+        if not os.path.isdir(subdir_path):
             print(f"Error: {subdir} is not a directory")
             exit(1)
 
         build_name = subdir[7:]
         metrics["name"] = build_name
 
-        metrics_file = os.path.join(input_dir, subdir, f"metrics_{build_name}.txt")
+        # Copy spectrum image into img_dir
+        img_name = f"spectrum_{build_name}.png"
+        src_img_path = os.path.join(subdir_path, img_name)
+        if os.path.isfile(src_img_path):
+            shutil.copy2(src_img_path, os.path.join(img_dir, img_name))
+            images.append(img_name)
+
+        metrics_file = os.path.join(subdir_path, f"metrics_{build_name}.txt")
         with open(metrics_file, "r") as f:
             for line in f.readlines():
                 if "SNR:" in line:
@@ -29,7 +40,7 @@ def extract_metrics(input_dir: str):
                 if "Instructions:" in line:
                     metrics["inst_count"] = line.split()[-1]
 
-        build_log = os.path.join(input_dir, subdir, f"build_{build_name}.log")
+        build_log = os.path.join(subdir_path, f"build_{build_name}.log")
         with open(build_log, "r") as f:
             for line in f.readlines():
                 if "RAM:" in line:
@@ -38,7 +49,19 @@ def extract_metrics(input_dir: str):
                     metrics["flash"] = line.split()[1]
 
         table.append(metrics)
-    return table
+    return table, images
+
+
+def create_html_image_list(images):
+    items = "\n".join(
+        f"        <li>\n"
+        f"          <p>{img}</p>\n"
+        f"          <img src='img/{img}' alt='{img}'>\n"
+        f"        </li>"
+        for img in images
+    )
+    return f"      <ul>\n{items}\n      </ul>"
+
 
 def create_html_table(metrics_table):
     table = "<table border='1'>"
@@ -59,19 +82,21 @@ def create_html_table(metrics_table):
 
     return table
 
-def create_html_doc(html_table):
-    html_template = f"""<!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Report</title>
-        <link rel="stylesheet" href="style.css">
-      </head>
-      <body>
-      {html_table}
-      </body>
-    </html>"""
+
+def create_html_doc(image_list_html, html_table):
+    html_template = f"""<!DOCTYPE html>  
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Report</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+{image_list_html}
+{html_table}
+</body>
+</html>"""
 
     return html_template
 
@@ -90,12 +115,13 @@ def main():
     if not os.path.isdir(img_dir):
         os.mkdir(img_dir)
 
-    table = extract_metrics(args.input_dir)
+    table, images = extract_metrics(args.input_dir, img_dir)
+    image_list_html = create_html_image_list(images)
     html_table = create_html_table(table)
-    document = create_html_doc(html_table)
+    document = create_html_doc(image_list_html, html_table)
 
     report_path = os.path.join(args.output_dir, "report.html")
-    
+
     with open(report_path, "w") as out_file:
         out_file.write(document)
 
