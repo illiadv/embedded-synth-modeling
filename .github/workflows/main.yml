@@ -103,6 +103,10 @@ jobs:
           INST_COUNT=$(grep Instructions output/metrics_$BUILD_NAME.txt | awk '{print $2}')
           echo "INST_COUNT=$INST_COUNT" >> $GITHUB_ENV
 
+      - name: Run bin_to_wav.py
+        run: |
+          uv run python3 bin_to_wav.py output/dump.bin output/audio_${{ env.BUILD_NAME }}.wav ${{ matrix.sampling_rate }}
+
       - name: Run plot_spectrum.py
         run: |
           uv run python3 plot_spectrum.py output/dump.bin output/spectrum_${{ env.BUILD_NAME }}.png --sampling-rate ${{ matrix.sampling_rate }}
