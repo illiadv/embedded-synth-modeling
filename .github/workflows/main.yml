@@ -146,8 +146,12 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         path: all_artifacts # Downloads all artifacts into this directory
+    - name: Set up Python
+      uses: actions/setup-python@v7
+      with:
+        python-version: '3.12'
     - name: Create HTML report
-      run: uv run create_html_report.py all_artifacts/ public/
+      run: python3 create_html_report.py all_artifacts/ public/
     - name: Deploy report to Github Pages
       uses: peaceiris/actions-gh-pages@v4
       with:
