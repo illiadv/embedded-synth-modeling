@@ -136,3 +136,20 @@ jobs:
           echo "- Instruction count: ${{ env.INST_COUNT }}" >> $GITHUB_STEP_SUMMARY
           echo "### Signal metrics" >> $GITHUB_STEP_SUMMARY
           echo "- SNR: ${{ env.SNR }}" >> $GITHUB_STEP_SUMMARY
+
+  create_report:
+    needs: [build_and_run]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: all_artifacts # Downloads all artifacts into this directory
+    - name: Create HTML report
+      run: uv run create_html_report.py all_artifacts/ public/
+    - name: Deploy report to Github Pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: public/
