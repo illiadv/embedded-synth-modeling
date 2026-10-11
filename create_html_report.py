@@ -109,7 +109,10 @@ def create_html_doc(image_list_html, html_table):
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<h1>Modeling report</h1>
+<h2>Metrics</h2>
 {html_table}
+<h2>Spectrum plots</h2>
 {image_list_html}
 </body>
 </html>"""
