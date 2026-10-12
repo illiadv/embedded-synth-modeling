@@ -141,7 +141,9 @@ jobs:
     needs: [build_and_run]
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
+      pages: write
+      id-token: write
     steps:
     - uses: actions/checkout@v4
     - name: Download all artifacts
@@ -154,8 +156,11 @@ jobs:
         python-version: '3.12'
     - name: Create HTML report
       run: python3 create_html_report.py all_artifacts/ public/
-    - name: Deploy report to Github Pages
-      uses: peaceiris/actions-gh-pages@v4
+
+    - name: Upload artifact for Pages
+      uses: actions/upload-pages-artifact@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: public/
+        path: public/
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
