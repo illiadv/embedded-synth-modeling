@@ -144,7 +144,7 @@ def main():
     html_table = create_html_table(table, audio)
     document = create_html_doc(image_list_html, html_table)
 
-    report_path = os.path.join(args.output_dir, "report.html")
+    report_path = os.path.join(args.output_dir, "index.html")
 
     with open(report_path, "w") as out_file:
         out_file.write(document)
