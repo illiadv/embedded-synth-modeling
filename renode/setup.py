@@ -6,4 +6,5 @@ def setup_stm32(e: Emulation) -> Machine:
     stm32.load_repl("platforms/cpus/stm32f4.repl")
     stm32.load_elf("build/Debug/f401.elf")
     stm32.sysbus.timer1.Frequency = 8000000
+    stm32.sysbus.cpu.PerformanceInMips = 72
     return stm32
