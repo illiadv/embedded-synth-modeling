@@ -1,59 +1,71 @@
-from pyrenode3.wrappers import Emulation, Monitor, TerminalTester
-from Antmicro.Renode.Peripherals.Bus import Access, SysbusAccessWidth
 import os
 import time
 import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--sampling-rate", type=int, required=True)  
-args = parser.parse_args()
+from pyrenode3.wrappers import Emulation, Monitor, TerminalTester
+from Antmicro.Renode.Peripherals.Bus import Access, SysbusAccessWidth
+
+from setup import setup_stm32
 
 buffer_size = 512
 bytes_per_sample = 2
 
-cwd = os.getcwd()
-output_dir = os.path.join(cwd, "output")
-try:
-    os.mkdir(output_dir)
-except FileExistsError:
-    pass
-except Exception:
-    print(f"Could not create directory {output_dir}. Aborting.")
-    exit(1)
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--sampling-rate", type=int, required=True)  
+    args = parser.parse_args()
+    return args
 
-output_path = os.path.join(output_dir, "dump.bin")
 
-try:
-    open(output_path, "w")
-except Exception as e:
-    print(f"Could not create empty output file: {e}")
-    exit(1)
-else:
-    print(f"Created empty file {output_path}")
+def touch_output_file(output_dir: str) -> str:
+    try:
+        os.mkdir(output_dir)
+    except FileExistsError:
+        pass
+    except Exception:
+        print(f"Could not create directory {output_dir}. Aborting.")
+        exit(1)
 
-e = Emulation()
-m = Monitor()
+    output_path = os.path.join(output_dir, "dump.bin")
 
-m.execute(f"logFile @{os.path.join(output_dir, "renode.log")}")
+    try:
+        open(output_path, "w")
+    except Exception as e:
+        print(f"Could not create empty output file: {e}")
+        exit(1)
+    else:
+        print(f"Created empty file {output_path}")
 
-stm32 = e.add_mach()
-assert stm32 is not None
-stm32.load_repl("platforms/cpus/stm32f4.repl")
-stm32.load_elf("build/Debug/f401.elf")
-stm32.sysbus.timer1.Frequency = 8000000
+    return output_path
 
-t = TerminalTester(stm32.sysbus.usart2, 0.1)
-e.StartAll()
+def main():
 
-result = t.WaitFor([f"Rate: {args.sampling_rate}"], includeUnfinishedLine=True)
-if (result == None):
-    print("Sampling rate test failed:")
-    print(t.GetReport())
-    exit(1)
-else:
-    print("Sampling rate test passed")
+    args = parse_args()
+    assert args is not None
 
-buffer_full_hook = f"""
+    cwd = os.getcwd()
+    output_dir = os.path.join(cwd, "output")
+    output_path = touch_output_file(output_dir)
+
+    e = Emulation()
+    m = Monitor()
+
+    m.execute(f"logFile @{os.path.join(output_dir, "renode.log")}")
+
+    stm32 = setup_stm32(e)
+
+    t = TerminalTester(stm32.sysbus.usart2, 0.1)
+    e.StartAll()
+
+    result = t.WaitFor([f"Rate: {args.sampling_rate}"], includeUnfinishedLine=True)
+    if (result == None):
+        print("Sampling rate test failed:")
+        print(t.GetReport())
+        exit(1)
+    else:
+        print("Sampling rate test passed")
+
+    buffer_full_hook = f"""
 if value != 0:
     sysbus = cpu.GetMachine()['sysbus']
 
@@ -79,13 +91,16 @@ if value != 0:
         cpu.Pause()
 """
 
-try:
-    hook_trigger_address = stm32.sysbus.GetSymbolAddress("g_buffer_samples_written")
-    stm32.sysbus.AddWatchpointHook(hook_trigger_address, SysbusAccessWidth.DoubleWord, Access.Write, buffer_full_hook)
-except Exception as e:
-    print(f"Exception: {e}")
-    exit(1)
+    try:
+        hook_trigger_address = stm32.sysbus.GetSymbolAddress("g_buffer_samples_written")
+        stm32.sysbus.AddWatchpointHook(hook_trigger_address, SysbusAccessWidth.DoubleWord, Access.Write, buffer_full_hook)
+    except Exception as e:
+        print(f"Exception: {e}")
+        exit(1)
 
 
-time.sleep(5);
-print("Exiting")
+    time.sleep(5);
+    print("Exiting")
+
+if __name__ == "__main__":
+    main()
