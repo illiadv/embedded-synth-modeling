@@ -34,7 +34,7 @@ def main():
         -ex "break GetSample_{args.impl_name}"
         -ex "continue"
         -ex "count_inst"
-        ./build/Debug/f401.elf
+        ./build/Release/f401.elf
     """
     args_gdb = shlex.split(cmd_gdb)
 

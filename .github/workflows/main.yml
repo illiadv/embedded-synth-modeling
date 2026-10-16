@@ -37,7 +37,7 @@ jobs:
 
       # Configure and build
       - name: Configure CMake
-        run: cmake --preset Debug -DACTIVE_IMPL=${{ matrix.impl }} -DSAMPLING_RATE=${{ matrix.sampling_rate }}
+        run: cmake --preset Release -DACTIVE_IMPL=${{ matrix.impl }} -DSAMPLING_RATE=${{ matrix.sampling_rate }}
 
       - name: Build firmware
         run: |
@@ -47,7 +47,7 @@ jobs:
 
           mkdir output
           set -o pipefail
-          cmake --build --preset Debug --target f401 | tee output/build_$BUILD_NAME.log
+          cmake --build --preset Release --target f401 | tee output/build_$BUILD_NAME.log
 
           RAM_USED=$(grep "RAM:" $BUILD_LOG | awk '{print $2}')
           RAM_PCT=$(grep "RAM:" $BUILD_LOG | awk '{print $6}')
