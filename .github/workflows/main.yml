@@ -42,7 +42,7 @@ jobs:
 
       - name: Build firmware
         run: |
-          BUILD_NAME=${{ matrix.impl }}_${{ matrix.sampling_rate }_${{ matrix.optimization }}}
+          BUILD_NAME=${{ matrix.impl }}_${{ matrix.sampling_rate }}_${{ matrix.optimization }}}
           echo "BUILD_NAME=$BUILD_NAME" >> $GITHUB_ENV
           BUILD_LOG=output/build_$BUILD_NAME.log
 
