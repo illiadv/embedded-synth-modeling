@@ -1,4 +1,7 @@
-build/
+build__pycache__/
+*.py[codz]
+*$py.class/
+
 output/
 Debug/
 Release/
