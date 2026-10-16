@@ -13,6 +13,7 @@ jobs:
       matrix:
         impl: [wt_lerp, wt_trunc, fm_sin, fm_lut, fm_lut_lerp]
         sampling_rate: [8000, 48000]
+        optimization: [-O0, Os]
 
     steps:
       - uses: actions/checkout@v7
@@ -37,11 +38,11 @@ jobs:
 
       # Configure and build
       - name: Configure CMake
-        run: cmake --preset Release -DACTIVE_IMPL=${{ matrix.impl }} -DSAMPLING_RATE=${{ matrix.sampling_rate }}
+        run: cmake --preset Release -DACTIVE_IMPL=${{ matrix.impl }} -DSAMPLING_RATE=${{ matrix.sampling_rate }} -DOPTIMIZATION=${{ matrix.optimization }}
 
       - name: Build firmware
         run: |
-          BUILD_NAME=${{ matrix.impl }}_${{ matrix.sampling_rate }}
+          BUILD_NAME=${{ matrix.impl }}_${{ matrix.sampling_rate }_${{ matrix.optimization }}}
           echo "BUILD_NAME=$BUILD_NAME" >> $GITHUB_ENV
           BUILD_LOG=output/build_$BUILD_NAME.log
 
