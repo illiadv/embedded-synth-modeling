@@ -13,7 +13,7 @@ jobs:
       matrix:
         impl: [wt_lerp, wt_trunc, fm_sin, fm_lut, fm_lut_lerp]
         sampling_rate: [8000, 48000]
-        optimization: [-O0, Os]
+        optimization: [-O0, -Os]
 
     steps:
       - uses: actions/checkout@v7
