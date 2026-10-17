@@ -15,7 +15,8 @@ def extract_metrics(input_dir: str, img_dir: str, audio_dir: str):
     images = list()
     audio = list()
 
-    artifacts = filter(lambda s: s.startswith("output_"), os.listdir(input_dir))
+    artifacts = list(filter(lambda s: s.startswith("output_"), os.listdir(input_dir)))
+    artifacts.sort()
     for subdir in artifacts:
         metrics = dict()
         subdir_path = os.path.join(input_dir, subdir)
