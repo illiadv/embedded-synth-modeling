@@ -50,16 +50,6 @@ jobs:
           set -o pipefail
           cmake --build --preset Release --target f401 | tee output/build_$BUILD_NAME.log
 
-          RAM_USED=$(grep "RAM:" $BUILD_LOG | awk '{print $2}')
-          RAM_PCT=$(grep "RAM:" $BUILD_LOG | awk '{print $6}')
-          FLASH_USED=$(grep "FLASH:" $BUILD_LOG | awk '{print $2}')
-          FLASH_PCT=$(grep "FLASH:" $BUILD_LOG | awk '{print $6}')
-
-          echo "RAM_USED=$RAM_USED" >> $GITHUB_ENV
-          echo "RAM_PCT=$RAM_PCT" >> $GITHUB_ENV
-          echo "FLASH_USED=$FLASH_USED" >> $GITHUB_ENV
-          echo "FLASH_PCT=$FLASH_PCT" >> $GITHUB_ENV
-
       - name: Upload binary
         uses: actions/upload-artifact@v7
         with:
@@ -101,8 +91,6 @@ jobs:
         run: |
           export PYRENODE_PATH=./renode.tar.gz
           uv run python3 renode/count_instructions.py --impl-name ${{ matrix.impl }} | tee --append output/metrics_$BUILD_NAME.txt
-          INST_COUNT=$(grep Instructions output/metrics_$BUILD_NAME.txt | awk '{print $2}')
-          echo "INST_COUNT=$INST_COUNT" >> $GITHUB_ENV
 
       - name: Run bin_to_wav.py
         run: |
@@ -115,28 +103,12 @@ jobs:
       - name: Run calculate_snr.py
         run: |
           uv run calculate_snr.py --sampling-rate ${{ matrix.sampling_rate }} --frequency 220 output/dump.bin | tee --append output/metrics_$BUILD_NAME.txt
-          SNR=$(grep SNR output/metrics_$BUILD_NAME.txt | awk '{print $2}')
-          echo "SNR=$SNR" >> $GITHUB_ENV
 
       - name: Upload output artifacts
         uses: actions/upload-artifact@v7
         with:
           name: output_${{ env.BUILD_NAME }}
           path: output/
-
-      - name: Report metrics
-        run: |
-          echo "- RAM: ${{ env.RAM_USED }} bytes (${{ env.RAM_PCT }})"
-          echo "- FLASH: ${{ env.FLASH_USED }} bytes (${{ env.FLASH_PCT }})"
-
-          echo "## Metrics" >> $GITHUB_STEP_SUMMARY
-          echo "### Firmware memory usage" >> $GITHUB_STEP_SUMMARY
-          echo "- RAM: ${{ env.RAM_USED }} bytes (${{ env.RAM_PCT }})" >> $GITHUB_STEP_SUMMARY
-          echo "- FLASH: ${{ env.FLASH_USED }} bytes (${{ env.FLASH_PCT }})" >> $GITHUB_STEP_SUMMARY
-          echo "### Performance:" >> $GITHUB_STEP_SUMMARY
-          echo "- Instruction count: ${{ env.INST_COUNT }}" >> $GITHUB_STEP_SUMMARY
-          echo "### Signal metrics" >> $GITHUB_STEP_SUMMARY
-          echo "- SNR: ${{ env.SNR }}" >> $GITHUB_STEP_SUMMARY
 
   create_report:
     needs: [build_and_run]
