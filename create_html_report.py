@@ -81,8 +81,8 @@ def create_html_image_list(images):
 
 def create_html_table(metrics_table, audio_list):
     table = "<table id='metricsTable' border='1'>"
-    table += """<tr>
     table += "<tbody>"
+    table += """<tr>
     <th>Build name</th>
     <th>RAM</th>
     <th>FLASH</th>
