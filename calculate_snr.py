@@ -96,7 +96,7 @@ def main():
 
     for key, value in results.items():
         if isinstance(value, float):
-            print(f"{key}: {value:.2f}")
+            print(f"{key}: {value:.4f}")
         else:
             print(f"{key}: {value}")
 
