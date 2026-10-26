@@ -80,8 +80,9 @@ def create_html_image_list(images):
 
 
 def create_html_table(metrics_table, audio_list):
-    table = "<table border='1'>"
+    table = "<table id='metricsTable' border='1'>"
     table += """<tr>
+    table += "<tbody>"
     <th>Build name</th>
     <th>RAM</th>
     <th>FLASH</th>
@@ -108,29 +109,72 @@ def create_html_table(metrics_table, audio_list):
 
         table += html_row
 
+    table += "</tbody></table>"
     table += "</table>"
 
     return table
 
-
 def create_html_doc(image_list_html, html_table):
-    html_template = f"""<!DOCTYPE html>  
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Report</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-<h1>Modeling report</h1>
-<p>Created on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
-<h2>Metrics</h2>
-{html_table}
-<h2>Spectrum plots</h2>
-{image_list_html}
-</body>
-</html>"""
+    # Added inline CSS to show a pointer cursor and a small JS sorting script
+    html_template = f"""<!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Report</title>
+        <link rel="stylesheet" href="style.css">
+        <style>
+          th {{
+            cursor: pointer;
+            user-select: none;
+            background-color: #f2f2f2;
+          }}
+          th:hover {{
+            background-color: #ddd;
+          }}
+        </style>
+      </head>
+      <body>
+        <h1>Modeling report</h1>
+        <p>Created on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+        <h2>Metrics</h2>
+        {html_table}
+        <h2>Spectrum plots</h2>
+        {image_list_html}
+
+      <script>
+        document.querySelectorAll('#metricsTable th').forEach((header, colIndex) => {{
+          header.addEventListener('click', () => {{
+            const table = header.closest('table');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const isAsc = header.dataset.asc !== "true";
+
+            rows.sort((rowA, rowB) => {{
+              const cellA = rowA.children[colIndex].innerText.trim();
+              const cellB = rowB.children[colIndex].innerText.trim();
+
+              const valA = parseFloat(cellA);
+              const valB = parseFloat(cellB);
+
+              // Sort numerically if both are valid numbers, otherwise sort alphabetically
+              if (!isNaN(valA) && !isNaN(valB)) {{
+                return isAsc ? valA - valB : valB - valA;
+              }}
+              return isAsc ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+            }});
+
+            // Toggle sort direction for next click
+            table.querySelectorAll('th').forEach(th => delete th.dataset.asc);
+            header.dataset.asc = isAsc;
+
+            // Append reordered rows back to the table body
+            rows.forEach(row => tbody.appendChild(row));
+          }});
+        }});
+      </script>
+      </body>
+    </html>"""
 
     return html_template
 
