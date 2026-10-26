@@ -45,13 +45,13 @@ def extract_metrics(input_dir: str, img_dir: str, audio_dir: str):
         metrics_file = os.path.join(subdir_path, f"metrics_{build_name}.txt")
         with open(metrics_file, "r") as f:
             for line in f.readlines():
-                if "SNR_db:" in line:
+                if "SNR_dB:" in line:
                     metrics["snr"] = line.split()[-1]
-                if "THD_db:" in line:
+                if "THD_dB:" in line:
                     metrics["thd"] = line.split()[-1]
                 if "THD_percent:" in line:
                     metrics["thd_p"] = line.split()[-1]
-                if "THD+N_db:" in line:
+                if "THD+N_dB:" in line:
                     metrics["thd_n"] = line.split()[-1]
                 if "Instructions:" in line:
                     metrics["inst_count"] = line.split()[-1]
