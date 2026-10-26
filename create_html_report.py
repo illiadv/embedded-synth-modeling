@@ -44,8 +44,14 @@ def extract_metrics(input_dir: str, img_dir: str, audio_dir: str):
         metrics_file = os.path.join(subdir_path, f"metrics_{build_name}.txt")
         with open(metrics_file, "r") as f:
             for line in f.readlines():
-                if "SNR:" in line:
+                if "SNR_db:" in line:
                     metrics["snr"] = line.split()[-1]
+                if "THD_db:" in line:
+                    metrics["thd"] = line.split()[-1]
+                if "THD_percent:" in line:
+                    metrics["thd_p"] = line.split()[-1]
+                if "THD+N_db:" in line:
+                    metrics["thd_n"] = line.split()[-1]
                 if "Instructions:" in line:
                     metrics["inst_count"] = line.split()[-1]
 
@@ -79,7 +85,10 @@ def create_html_table(metrics_table, audio_list):
     <th>RAM</th>
     <th>FLASH</th>
     <th>Instructions</th>
-    <th>SNR</th>
+    <th>SNR, dB</th>
+    <th>THD, dB</th>
+    <th>THD, %</th>
+    <th>THD+N, dB</th>
     <th>Audio</th>
     </tr>"""
 
@@ -90,6 +99,9 @@ def create_html_table(metrics_table, audio_list):
         html_row += f"<td>{row['flash']}</td>"
         html_row += f"<td>{row['inst_count']}</td>"
         html_row += f"<td>{row['snr']}</td>"
+        html_row += f"<td>{row['thd']}</td>"
+        html_row += f"<td>{row['thd_p']}</td>"
+        html_row += f"<td>{row['thd_n']}</td>"
         html_row += f"<td><audio controls><source src='audio/{audio_list[i]}' type='audio/wav'>Audio not supported</audio></td>"
         html_row += "</tr>"
 
