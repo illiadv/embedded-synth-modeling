@@ -1,6 +1,7 @@
 import argparse
 import os
 import shutil
+from datetime import datetime
 
 
 def parse_args():
@@ -123,6 +124,7 @@ def create_html_doc(image_list_html, html_table):
 </head>
 <body>
 <h1>Modeling report</h1>
+<p>Created on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
 <h2>Metrics</h2>
 {html_table}
 <h2>Spectrum plots</h2>
