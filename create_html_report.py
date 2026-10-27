@@ -83,6 +83,9 @@ def create_html_table(metrics_table, audio_list):
     table = "<table id='metricsTable' border='1'>"
     table += """<thead><tr>
     <th>Build name</th>
+    <th>Impl. name</th>
+    <th>Sampling rate</th>
+    <th>Optimization</th>
     <th>RAM</th>
     <th>FLASH</th>
     <th>Instructions</th>
@@ -95,8 +98,15 @@ def create_html_table(metrics_table, audio_list):
     table += "<tbody>"
 
     for i, row in enumerate(metrics_table):
+        build_name :str = row['name']
+        flags = build_name.split('_')[-1]
+        rate = build_name.split('_')[-2]
+        impl_name = build_name[:(build_name.index(rate)-1)]
         html_row = "<tr>"
-        html_row += f"<td><b>{row['name']}</b></td>"
+        html_row += f"<td><b>{build_name}</b></td>"
+        html_row += f"<td><b>{impl_name}</b></td>"
+        html_row += f"<td>{rate}</td>"
+        html_row += f"<td>{flags}</td>"
         html_row += f"<td>{row['ram']}</td>"
         html_row += f"<td>{row['flash']}</td>"
         html_row += f"<td>{row['inst_count']}</td>"
