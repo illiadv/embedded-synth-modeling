@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        impl: [wt_lerp, wt_trunc, fm_sin, fm_lut, fm_lut_lerp]
+        impl: [wt_lerp, wt_trunc, fm_sin, fm_sinf, fm_lut, fm_lut_lerp]
         sampling_rate: [8000, 48000]
-        optimization: [-O0, -Os]
+        optimization: [-O0, -Os, -Ofast]
 
     steps:
       - uses: actions/checkout@v7
